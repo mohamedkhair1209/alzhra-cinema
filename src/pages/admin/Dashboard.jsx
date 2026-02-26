@@ -15,17 +15,32 @@ export default function Dashboard() {
 
     useEffect(() => {
         async function fetchStats() {
-            const [moviesRes, showtimesRes] = await Promise.all([
-                supabase.from('movies').select('id, is_active'),
-                supabase.from('showtimes').select('id')
-            ])
+            try {
+                // Fetch movies with a fallback for missing is_active column
+                const { data: movies, error: movieError } = await supabase.from('movies').select('id, is_active')
 
-            const movies = moviesRes.data || []
-            setStats({
-                totalMovies: movies.length,
-                activeMovies: movies.filter(m => m.is_active).length,
-                totalShowtimes: (showtimesRes.data || []).length
-            })
+                let movieData = movies || []
+                let activeCount = 0
+
+                if (movieError && (movieError.code === 'PGRST204' || movieError.message.includes('is_active'))) {
+                    console.warn('Dashboard: is_active column missing, falling back to id only select')
+                    const { data: minimalMovies } = await supabase.from('movies').select('id')
+                    movieData = minimalMovies || []
+                    activeCount = movieData.length // Default all to active if column missing
+                } else {
+                    activeCount = movieData.filter(m => m.is_active !== false).length
+                }
+
+                const { data: showtimes } = await supabase.from('showtimes').select('id')
+
+                setStats({
+                    totalMovies: movieData.length,
+                    activeMovies: activeCount,
+                    totalShowtimes: (showtimes || []).length
+                })
+            } catch (err) {
+                console.error('Dashboard Stats Error:', err)
+            }
         }
         fetchStats()
     }, [])
