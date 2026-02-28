@@ -29,6 +29,20 @@ export const ui = {
             totalMovies: { ar: 'إجمالي الأفلام', en: 'Total Movies' },
             activeMovies: { ar: 'أفلام نشطة', en: 'Active Movies' },
             totalShowtimes: { ar: 'إجمالي المواعيد', en: 'Total Showtimes' },
+        },
+        genres: {
+            'Action': { ar: 'أكشن', en: 'Action' },
+            'Drama': { ar: 'دراما', en: 'Drama' },
+            'Comedy': { ar: 'كوميدي', en: 'Comedy' },
+            'Thriller': { ar: 'تشويق', en: 'Thriller' },
+            'Horror': { ar: 'رعب', en: 'Horror' },
+            'Romance': { ar: 'رومانسي', en: 'Romance' },
+            'Sci-Fi': { ar: 'خيال علمي', en: 'Sci-Fi' },
+            'Adventure': { ar: 'مغامرة', en: 'Adventure' },
+            'Animation': { ar: 'أنيميشن', en: 'Animation' },
+            'Family': { ar: 'عائلي', en: 'Family' },
+            'Crime': { ar: 'جريمة', en: 'Crime' },
+            'Documentary': { ar: 'وثائقي', en: 'Documentary' }
         }
     }
 }

@@ -32,8 +32,14 @@ export default function MovieDetails() {
                     {t('← العودة للرئيسية', '← Back to Home')}
                 </Link>
                 <h1>{t(movie.title_ar, movie.title_en)}</h1>
-                <p><strong>{t(ui.movie.genre.ar, ui.movie.genre.en)}:</strong> {t(movie.genre_ar, movie.genre_en)}</p>
-                <p><strong>{t(ui.movie.duration.ar, ui.movie.duration.en)}:</strong> {movie.duration} {t(ui.movie.min.ar, ui.movie.min.en)}</p>
+                <div className="genre-container">
+                    {(movie.genres || []).map(genre => (
+                        <span key={genre} className="genre-badge">
+                            {t(ui.genres[genre]?.ar, genre)}
+                        </span>
+                    ))}
+                </div>
+                <p style={{ marginTop: '20px' }}><strong>{t(ui.movie.duration.ar, ui.movie.duration.en)}:</strong> {movie.duration} {t(ui.movie.min.ar, ui.movie.min.en)}</p>
                 <p><strong>{t(ui.movie.release.ar, ui.movie.release.en)}:</strong> {movie.release_date}</p>
                 <p style={{ marginTop: '20px', color: '#ccc' }}>{t(movie.description_ar, movie.description_en)}</p>
 

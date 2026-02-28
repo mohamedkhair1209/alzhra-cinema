@@ -518,6 +518,30 @@ html[lang="ar"] .logo .en {
     }
 
 
+    /* Genre Badges */
+    .genre-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .genre-badge {
+        padding: 6px 14px;
+        background: rgba(255, 215, 0, 0.1);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        color: var(--gold);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .genre-badge:hover {
+        background: var(--gold);
+        color: #000;
+    }
+
     .admin-nav-item span:last-child {
         display: none;
     }

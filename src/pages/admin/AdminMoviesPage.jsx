@@ -5,15 +5,28 @@ import { ui } from '../../i18n/translations'
 import { AdminLayout } from '../../components/admin/AdminLayout'
 import { Modal } from '../../components/admin/Modal'
 
+const GENRES_LIST = [
+    'Action', 'Drama', 'Comedy', 'Thriller', 'Horror', 'Romance',
+    'Sci-Fi', 'Adventure', 'Animation', 'Family', 'Crime', 'Documentary'
+]
+
 export function MovieForm({ movie, onSave, onCancel }) {
     const { t } = useLanguage()
     const [formData, setFormData] = useState(movie || {
         title_ar: '', title_en: '',
         description_ar: '', description_en: '',
-        genre_ar: '', genre_en: '',
+        genres: [],
         poster_url: '', duration: 120,
         is_active: true
     })
+
+    const handleGenreChange = (genre) => {
+        const currentGenres = formData.genres || []
+        const newGenres = currentGenres.includes(genre)
+            ? currentGenres.filter(g => g !== genre)
+            : [...currentGenres, genre]
+        setFormData({ ...formData, genres: newGenres })
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -32,6 +45,38 @@ export function MovieForm({ movie, onSave, onCancel }) {
                     <input className="form-control" value={formData.title_en} onChange={e => setFormData({ ...formData, title_en: e.target.value })} required />
                 </div>
             </div>
+
+            <div className="form-group">
+                <label>{t('الأنواع', 'Genres')}</label>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+                    gap: '10px',
+                    padding: '15px',
+                    background: '#1a1a1a',
+                    borderRadius: '8px',
+                    border: '1px solid #333'
+                }}>
+                    {GENRES_LIST.map(genre => (
+                        <label key={genre} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem'
+                        }}>
+                            <input
+                                type="checkbox"
+                                checked={(formData.genres || []).includes(genre)}
+                                onChange={() => handleGenreChange(genre)}
+                                style={{ accentColor: 'var(--gold)' }}
+                            />
+                            {t(ui.genres[genre]?.ar, genre)}
+                        </label>
+                    ))}
+                </div>
+            </div>
+
             <div className="form-group">
                 <label>{t('رابط الصورة', 'Poster URL')}</label>
                 <input className="form-control" value={formData.poster_url} onChange={e => setFormData({ ...formData, poster_url: e.target.value })} />
