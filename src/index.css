@@ -1,3 +1,7 @@
+html {
+    scroll-behavior: smooth;
+}
+
 :root {
     --bg: #050505;
     --surface: #111111;
@@ -446,6 +450,56 @@ html[lang="ar"] .logo .en {
     letter-spacing: 1px;
 }
 
+/* Social Links */
+.social-links {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.social-item {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    color: var(--gold);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: transparent;
+}
+
+.social-item:hover {
+    background: #FFD700;
+    color: #000;
+    transform: scale(1.1);
+    border-color: #FFD700;
+}
+
+.social-icon {
+    font-size: 20px;
+    display: flex;
+}
+
+.social-icon {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    display: block;
+    /* Ensure it respects dimensions */
+}
+
+.footer-socials {
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.contact-socials {
+    margin-top: 30px;
+}
+
 @media (max-width: 768px) {
     .detail-view {
         grid-template-columns: 1fr;
@@ -462,6 +516,7 @@ html[lang="ar"] .logo .en {
     .admin-sidebar {
         width: 60px;
     }
+
 
     .admin-nav-item span:last-child {
         display: none;

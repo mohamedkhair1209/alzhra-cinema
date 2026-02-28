@@ -5,6 +5,15 @@ import { ui } from '../i18n/translations'
 export default function Navbar() {
     const { toggleLang, t, isAr } = useLanguage()
 
+    const isHomePage = window.location.pathname === '/'
+
+    const NavLink = ({ to, label }) => {
+        if (isHomePage) {
+            return <a href={to}>{label}</a>
+        }
+        return <Link to={`/${to}`}>{label}</Link>
+    }
+
     return (
         <nav className="navbar">
             <div className="container nav-content">
@@ -13,9 +22,10 @@ export default function Navbar() {
                     <span className="en">ALZHRA CINEMA</span>
                 </Link>
                 <div className="nav-links">
-                    <Link to="/">{t(ui.nav.home.ar, ui.nav.home.en)}</Link>
-                    <Link to="/about">{t(ui.nav.about.ar, ui.nav.about.en)}</Link>
-                    <Link to="/contact">{t(ui.nav.contact.ar, ui.nav.contact.en)}</Link>
+                    <NavLink to="#hero" label={t(ui.nav.home.ar, ui.nav.home.en)} />
+                    <NavLink to="#movies" label={t(ui.home.nowShowing.ar, ui.home.nowShowing.en)} />
+                    <NavLink to="#about" label={t(ui.nav.about.ar, ui.nav.about.en)} />
+                    <NavLink to="#contact" label={t(ui.nav.contact.ar, ui.nav.contact.en)} />
                     <button onClick={toggleLang} className="lang-btn">
                         {isAr ? 'English' : 'العربية'}
                     </button>
