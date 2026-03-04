@@ -10,8 +10,8 @@ function ShowtimeForm({ showtime, movies, onSave, onCancel }) {
     const [formData, setFormData] = useState(showtime || {
         movie_id: movies[0]?.id || '',
         hall_name_ar: '', hall_name_en: '',
-        date: new Date().toISOString().split('T')[0],
-        time: '20:00'
+        show_date: new Date().toISOString().split('T')[0],
+        show_time: '20:00'
     })
 
     const handleSubmit = (e) => {
@@ -32,11 +32,11 @@ function ShowtimeForm({ showtime, movies, onSave, onCancel }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div className="form-group">
                     <label>{t('التاريخ', 'Date')}</label>
-                    <input type="date" className="form-control" value={formData.date} onChange={e => setFormData({ ...formData, date: e.target.value })} required />
+                    <input type="date" className="form-control" value={formData.show_date} onChange={e => setFormData({ ...formData, show_date: e.target.value })} required />
                 </div>
                 <div className="form-group">
                     <label>{t('الموعد', 'Time')}</label>
-                    <input type="time" className="form-control" value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} required />
+                    <input type="time" className="form-control" value={formData.show_time} onChange={e => setFormData({ ...formData, show_time: e.target.value })} required />
                 </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -71,7 +71,9 @@ export default function AdminShowtimesPage() {
         setLoading(true)
         const [stRes, mRes] = await Promise.all([
             // Use date/time for sorting and selecting
-            supabase.from('showtimes').select('*, movies(title_ar, title_en)').order('date', { ascending: false }),
+            supabase.from('showtimes').select('*, movies(title_ar, title_en)')
+                .order('show_date', { ascending: false })
+                .order('show_time', { ascending: true }),
             supabase.from('movies').select('id, title_ar, title_en').order('title_en')
         ])
         setShowtimes(stRes.data || [])
@@ -133,8 +135,8 @@ export default function AdminShowtimesPage() {
                             {showtimes.map(st => (
                                 <tr key={st.id}>
                                     <td>{t(st.movies?.title_ar, st.movies?.title_en)}</td>
-                                    <td>{st.date}</td>
-                                    <td>{st.time?.slice(0, 5)}</td>
+                                    <td>{st.show_date}</td>
+                                    <td>{st.show_time?.slice(0, 5)}</td>
                                     <td>{t(st.hall_name_ar, st.hall_name_en)}</td>
                                     <td>
                                         <button className="btn btn-secondary" style={{ padding: '5px 10px', marginRight: '5px' }} onClick={() => { setEditingShowtime(st); setIsModalOpen(true); }}>

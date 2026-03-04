@@ -33,9 +33,9 @@ export default function MovieDetails() {
                 </Link>
                 <h1>{t(movie.title_ar, movie.title_en)}</h1>
                 <div className="genre-container">
-                    {(movie.genres || []).map(genre => (
+                    {(movie.genre_en || movie.genre || '').split(',').map(g => g.trim()).filter(Boolean).map(genre => (
                         <span key={genre} className="genre-badge">
-                            {t(ui.genres[genre]?.ar, genre)}
+                            {t(ui.admin.genres[genre]?.ar, genre)}
                         </span>
                     ))}
                 </div>

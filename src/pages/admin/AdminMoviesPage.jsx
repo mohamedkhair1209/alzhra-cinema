@@ -12,20 +12,41 @@ const GENRES_LIST = [
 
 export function MovieForm({ movie, onSave, onCancel }) {
     const { t } = useLanguage()
-    const [formData, setFormData] = useState(movie || {
-        title_ar: '', title_en: '',
-        description_ar: '', description_en: '',
-        genres: [],
-        poster_url: '', duration: 120,
-        is_active: true
+
+    // Initial state with defensive checks for genres
+    const [formData, setFormData] = useState(() => {
+        const initial = movie || {
+            title_ar: '', title_en: '',
+            description_ar: '', description_en: '',
+            genre_ar: '', genre_en: '',
+            poster_url: '', duration: 120,
+            is_active: true
+        }
+
+        // Handle possible string or array formats from Supabase
+        const rawGenres = movie?.genre_en || movie?.genre || []
+        const genresArray = typeof rawGenres === 'string'
+            ? rawGenres.split(',').map(g => g.trim()).filter(Boolean)
+            : (Array.isArray(rawGenres) ? rawGenres : [])
+
+        return { ...initial, genres: genresArray }
     })
 
     const handleGenreChange = (genre) => {
-        const currentGenres = formData.genres || []
+        const currentGenres = Array.isArray(formData.genres) ? formData.genres : []
         const newGenres = currentGenres.includes(genre)
             ? currentGenres.filter(g => g !== genre)
             : [...currentGenres, genre]
-        setFormData({ ...formData, genres: newGenres })
+
+        // Map to Arabic for genre_ar column
+        const arGenres = newGenres.map(g => t(ui.admin.genres[g]?.ar, g))
+
+        setFormData({
+            ...formData,
+            genres: newGenres,
+            genre_en: newGenres.join(', '),
+            genre_ar: arGenres.join(', ')
+        })
     }
 
     const handleSubmit = (e) => {
@@ -71,7 +92,7 @@ export function MovieForm({ movie, onSave, onCancel }) {
                                 onChange={() => handleGenreChange(genre)}
                                 style={{ accentColor: 'var(--gold)' }}
                             />
-                            {t(ui.genres[genre]?.ar, genre)}
+                            {t(ui.admin.genres[genre]?.ar, genre)}
                         </label>
                     ))}
                 </div>
@@ -119,38 +140,53 @@ export default function AdminMoviesPage() {
     }
 
     async function handleSave(formData) {
-        console.log('Inserting/Updating Movie Data:', formData)
+        console.log('Attempting to save movie:', formData)
         setLoading(true)
         try {
-            // Attempt with all fields
-            const dataToSave = { ...formData }
-            const { error: firstError } = editingMovie
+            // [FIX] Strip internal fields and ensure only valid schema columns are sent
+            const dataToSave = {
+                title_ar: formData.title_ar,
+                title_en: formData.title_en,
+                description_ar: formData.description_ar,
+                description_en: formData.description_en,
+                genre_ar: formData.genre_ar,
+                genre_en: formData.genre_en,
+                poster_url: formData.poster_url,
+                duration: formData.duration,
+                is_active: formData.is_active ?? true
+            }
+
+            console.log('Cleaned payload for Supabase:', dataToSave)
+
+            const { error: saveError } = editingMovie
                 ? await supabase.from('movies').update(dataToSave).eq('id', editingMovie.id)
                 : await supabase.from('movies').insert([dataToSave])
 
-            if (firstError) {
-                // If it's a "column does not exist" error, try a fallback without is_active
-                if (firstError.code === 'PGRST204' || firstError.message.includes('is_active')) {
-                    console.warn('is_active column missing, attempting fallback save...')
+            if (saveError) {
+                // Handle missing is_active column fallback if needed (legacy safety)
+                if (saveError.code === 'PGRST204' && saveError.message.includes('is_active')) {
+                    console.warn('is_active column missing, attempting fallback...')
                     const fallbackData = { ...dataToSave }
                     delete fallbackData.is_active
-
-                    const { error: secondError } = editingMovie
+                    const { error: fallbackError } = editingMovie
                         ? await supabase.from('movies').update(fallbackData).eq('id', editingMovie.id)
                         : await supabase.from('movies').insert([fallbackData])
 
-                    if (secondError) throw secondError
+                    if (fallbackError) throw fallbackError
                 } else {
-                    throw firstError
+                    throw saveError
                 }
             }
 
+            console.log('Save successful!')
             setIsModalOpen(false)
             setEditingMovie(null)
             await fetchMovies()
         } catch (err) {
-            console.error('Supabase Error:', err)
-            alert(t('خطأ أثناء الحفظ: ', 'Error saving: ') + (err.message || err.details))
+            console.error('Detailed Supabase Save Error:', err)
+            // [IMPROVED] Show specific error message to the user
+            const errorMsg = err.message || err.details || JSON.stringify(err)
+            alert(t('حدث خطأ أثناء حفظ الفيلم: ', 'An error occurred while saving the movie: ') + errorMsg)
         } finally {
             setLoading(false)
         }
